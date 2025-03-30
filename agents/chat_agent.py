@@ -1,5 +1,7 @@
+# agents/chat_agent
 import os
 from uagents import Agent, Context, Model
+from uagents.protocol import Protocol
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -19,19 +21,27 @@ chat_agent = Agent(
     name="chat_agent",
     seed=CHAT_AGENT_SEED,
     port=8001,
-    endpoint=["http://localhost:8001/submit"]
+    mailbox=True
 )
 
 model = genai.GenerativeModel(model_name="models/gemini-2.0-flash")
 
-@chat_agent.on_message(model=ChatRequest)
+chat_protocol = Protocol(name="chat-protocol")
+
+@chat_protocol.on_message(model=ChatRequest)
 async def handle_chat(ctx: Context, sender: str, msg: ChatRequest):
     ctx.logger.info(f"🗣 Received: {msg.message}")
-    response = model.generate_content(msg.message)
-    reply = response.text
+    # response = model.generate_content(msg.message)
+    # reply = response.text
+    reply = "I'm doing well, thank you for asking! As a large language model, I don't experience emotions or feelings in the same way humans do, but I'm functioning optimally and ready to assist you with your requests. How are you doing today?"
     ctx.logger.info(f"🤖 Responding: {reply}")
 
     await ctx.send(sender, ChatResponse(reply=reply))
 
+chat_agent.include(chat_protocol)
+
 if __name__ == "__main__":
-    chat_agent.run()
+    try:
+        chat_agent.run()
+    except KeyboardInterrupt:
+        print("🛑 Agent stopped by user.")
