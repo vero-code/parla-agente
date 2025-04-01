@@ -31,7 +31,7 @@ test_assistant_agent.include(test_protocol)
 
 @test_assistant_agent.on_event("startup")
 async def send_message(ctx: Context):
-    user_msg = "Hello! I'm planning a trip to Paris and want to know the best time to go."
+    user_msg = "Hey! How's it going? What's new?"
     ctx.logger.info(f"📤 Sending a message to your assistant: {user_msg}")
     await ctx.send(
         os.getenv("ASSISTANT_AGENT_ADDRESS"),
