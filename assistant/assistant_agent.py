@@ -117,19 +117,21 @@ async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
 
 @assistant_agent.on_message(model=ChatResponse)
 async def handle_chat_reply(ctx: Context, sender: str, msg: ChatResponse):
-    ctx.logger.info(f"💬 Chat reply: {msg.reply}")
+    ctx.logger.info(f"💬 Chat Agent reply: {msg.reply}")
     conversation_history.append(f"Agent: {msg.reply}")
+
+    summary_address = os.getenv("SUMMARY_AGENT_HOSTED_ADDRESS")
 
     full_text = " ".join(conversation_history)
     await ctx.send(
-        os.getenv("SUMMARY_AGENT_ADDRESS"),
+        summary_address,
         SummaryRequest(text=full_text)
     )
 
 @assistant_agent.on_message(model=SummaryResponse)
 async def handle_summary(ctx: Context, sender: str, msg: SummaryResponse):
     global last_sender
-    ctx.logger.info(f"📝 Summary received: {msg.summary}")
+    ctx.logger.info(f"📝 Summary Agent: {msg.summary}")
     response = AssistantOutput(
         agent_reply=conversation_history[-1].replace("Agent: ", ""),
         summary=msg.summary
