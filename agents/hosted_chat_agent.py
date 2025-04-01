@@ -1,3 +1,4 @@
+# The agent is hosted at agentverse.ai as Chat Agent
 import os
 import requests
 from uagents import Agent, Context, Model
@@ -18,7 +19,7 @@ chat_agent = Agent(
 )
 
 def query_gemini(prompt: str) -> str:
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     headers = {"Content-Type": "application/json"}
     params = {"key": GEMINI_API_KEY}
     data = {

@@ -31,9 +31,8 @@ chat_protocol = Protocol(name="chat-protocol")
 @chat_protocol.on_message(model=ChatRequest)
 async def handle_chat(ctx: Context, sender: str, msg: ChatRequest):
     ctx.logger.info(f"🗣 Received: {msg.message}")
-    # response = model.generate_content(msg.message)
-    # reply = response.text
-    reply = "I'm doing well, thank you for asking! As a large language model, I don't experience emotions or feelings in the same way humans do, but I'm functioning optimally and ready to assist you with your requests. How are you doing today?"
+    response = model.generate_content(msg.message)
+    reply = response.text
     ctx.logger.info(f"🤖 Responding: {reply}")
 
     await ctx.send(sender, ChatResponse(reply=reply))
