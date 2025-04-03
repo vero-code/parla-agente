@@ -1,5 +1,6 @@
 # tests/test_assistant_agent.py
 import os
+import asyncio
 from uagents import Agent, Context, Model
 from uagents.protocol import Protocol
 
@@ -19,21 +20,51 @@ test_assistant_agent = Agent(
 
 test_protocol = Protocol(name="assistant-protocol")
 
+messages = [
+    "Hey! How's your work?",
+    "Did you see the news today?",
+    "I'm thinking of going to the beach this weekend.",
+    "Do you still play guitar?",
+    "Let's catch up soon!"
+]
+
+current = 0
+waiting = False
+
 @test_protocol.on_message(model=AssistantOutput)
 async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
+    global waiting, current
+
     ctx.logger.info(f"📨 From Chat Agent: {msg.agent_reply}")
-    ctx.logger.info(f"📝 From Summary Agent: {msg.summary}")
+    if msg.summary and msg.summary != "...":
+        ctx.logger.info(f"📝 From Summary Agent: {msg.summary}")
+
+    waiting = False
+
+    if current < len(messages):
+        await asyncio.sleep(2.5)
+        await send_next_message(ctx)
+
+async def send_next_message(ctx):
+    global current, waiting
+
+    if waiting:
+        return
+
+    msg = messages[current]
+    ctx.logger.info(f"📤 User sends: {msg}")
+    await ctx.send(
+        os.getenv("ASSISTANT_AGENT_ADDRESS"),
+        AssistantInput(user_message=msg)
+    )
+    waiting = True
+    current += 1
 
 test_assistant_agent.include(test_protocol)
 
 @test_assistant_agent.on_event("startup")
-async def send_message(ctx: Context):
-    user_msg = "Hey! How is your work? Why haven't you called for a long time?"
-    ctx.logger.info(f"📤 User sends message to assistant: {user_msg}")
-    await ctx.send(
-        os.getenv("ASSISTANT_AGENT_ADDRESS"),
-        AssistantInput(user_message=user_msg)
-    )
+async def start_conversation(ctx: Context):
+    await send_next_message(ctx)
 
 if __name__ == "__main__":
     test_assistant_agent.run()

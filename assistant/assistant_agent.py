@@ -120,13 +120,15 @@ async def handle_chat_reply(ctx: Context, sender: str, msg: ChatResponse):
     ctx.logger.info(f"💬 Chat Agent reply: {msg.reply}")
     conversation_history.append(f"Agent: {msg.reply}")
 
-    summary_address = os.getenv("SUMMARY_AGENT_HOSTED_ADDRESS")
+    await ctx.send(last_sender, AssistantOutput(agent_reply=msg.reply, summary="..."))
 
-    full_text = " ".join(conversation_history)
-    await ctx.send(
-        summary_address,
-        SummaryRequest(text=full_text)
-    )
+    if len(conversation_history) >= 10:
+        summary_address = os.getenv("SUMMARY_AGENT_HOSTED_ADDRESS")
+        full_text = " ".join(conversation_history)
+        await ctx.send(
+            summary_address,
+            SummaryRequest(text=full_text)
+        )
 
 @assistant_agent.on_message(model=SummaryResponse)
 async def handle_summary(ctx: Context, sender: str, msg: SummaryResponse):
