@@ -1,8 +1,8 @@
 # 🤖 Chat Agent
 
-![tag:innovation-lab](https://img.shields.io/badge/innovation--lab-3D8BD3)
+![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
 ![tag:domain/chat](https://img.shields.io/badge/domain%2Fchat-blue)
-![tag:vero-git-hub](https://img.shields.io/badge/tag%2Fvero--git--hub-purple)
+![tag:vero-code](https://img.shields.io/badge/tag%2Fvero--code-purple)
 ![tag:gemini-ai](https://img.shields.io/badge/tag%2Fgemini--ai-green)
 ![domain:chat](https://img.shields.io/badge/chat-3D8BD3)
 
@@ -54,8 +54,6 @@ class ChatResponse(Model):
 
 ### 👤 **Agent on Agentverse**
 
-You can view more details about this agent on [Agentverse](https://agentverse.ai/agents/details/agent1qttk8danzs0tuyj6drs332fxsk05z9acycakhrgyqxyxn0ky50yugvwcn6u).
-
-_Hackathon Participant – Global AI Agents League (Fetch.ai, 2025)_
+More details on [Agentverse](https://agentverse.ai/agents/details/agent1qttk8danzs0tuyj6drs332fxsk05z9acycakhrgyqxyxn0ky50yugvwcn6u).
 
 This agent supports `chat`, is powered by `Gemini AI`, and can be found under the name `chat_agent`. It's part of the `domain:chat` group and acts as an intelligent `agent` for natural language processing.

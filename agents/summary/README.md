@@ -1,8 +1,8 @@
 🤖 **Summary Agent**
 
-![tag:innovation-lab](https://img.shields.io/badge/innovation--lab-3D8BD3) 
-![domain:summary-chat](https://img.shields.io/badge/domain%2Fchat-green) 
-![tag:vero-git-hub](https://img.shields.io/badge/tag%2Fvero--git--hub-purple) 
+![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
+![domain:summary-chat](https://img.shields.io/badge/domain%2Fchat-green)
+![tag:vero-code](https://img.shields.io/badge/tag%2Fvero--code-purple)
 
  **Description:** The Summary Agent uses Gemini AI to summarize text. It processes incoming messages, sends the content to Gemini AI for summarization, and returns a concise summary. This agent is ideal for summarizing conversations, articles, or any content that requires a quick overview.
 
@@ -56,6 +56,3 @@
 -   **Version**: 1.0
 
 -   **Hosted on**: [Agentverse](https://agentverse.ai/agents/details/agent1qvl93v59uh72cu3fc637h4rdnlgcmjkg3f0xccusykk8y6pdh7x86ttzln8)
-
-
-_Hackathon Participant – Global AI Agents League (Fetch.ai, 2025)_
