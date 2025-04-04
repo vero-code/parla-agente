@@ -36,6 +36,11 @@ async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
     global waiting, current
 
     ctx.logger.info(f"📨 From Chat Agent: {msg.agent_reply}")
+
+    if "⚠️ Sorry, no available chat agent found" in msg.agent_reply:
+        ctx.logger.warning("❌ Stopping further messages: Chat agent not available.")
+        return
+
     if msg.summary and msg.summary != "...":
         ctx.logger.info(f"📝 From Summary Agent: {msg.summary}")
 
@@ -44,6 +49,8 @@ async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
     if current < len(messages):
         await asyncio.sleep(2.5)
         await send_next_message(ctx)
+    else:
+        ctx.logger.info("✅ Conversation complete.")
 
 async def send_next_message(ctx):
     global current, waiting
