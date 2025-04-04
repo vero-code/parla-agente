@@ -39,14 +39,16 @@ assistant_agent = Agent(
 conversation_history = []
 last_sender = None
 
-def find_agent(search_text="chat", limit=3):
+def find_agent(search_text="chat", limit=5):
     payload = {
-        "filters": {},
+        "filters": {
+            "tags": ["innovationlab"]
+        },
         "sort": "relevancy",
         "direction": "asc",
-        "search_text": "chat",
+        "search_text": search_text,
         "offset": 0,
-        "limit": 5
+        "limit": limit
     }
 
     headers = {
