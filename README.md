@@ -22,7 +22,7 @@ Parla Agente is now a **multi-agent system** designed to simulate natural conver
 
 - Takes full conversation history and returns a **brief, friendly summary**
 
-- Also uses **Gemini** to identify the real meaning behind casual chats
+- Uses **Gemini** to identify the real meaning behind casual chats
 
 ### 3. `Assistant Agent` (local)
 
@@ -32,11 +32,25 @@ Parla Agente is now a **multi-agent system** designed to simulate natural conver
 
 - Collects replies and sends full history to Summary Agent when the dialogue ends
 
+- Supports dynamic agent search and discovery feature on Agentverse.ai
+
 ### 4. `Test Assistant Agent` (local test user)
 
 - Imitates a real user sending multiple messages
 
 - Simulates a full conversation flow for local testing
+
+
+## 🔍 Agent Discovery (New Feature!)
+
+Instead of hardcoding agent addresses, **Parla Agente** now uses a custom `find_agent()` function to find agents dynamically.
+
+It queries [Agentverse.ai](https://agentverse.ai/) for agents with specific tags like: `["innovationlab"]`
+
+That means:  
+✔️ You don’t need to maintain static addresses
+✔️ Parla Agente can connect to other participants' public agents
+✔️ It’s easier to scale and add new agents in the future
 
 
 ## 💡Example
@@ -89,8 +103,6 @@ python assistant/assistant_agent.py
 python tests/test_assistant_agent.py
 ```
 
-Chat Agent and Summary Agent are hosted on [Agentverse.ai](https://agentverse.ai/)
-
 
 ## 💬 Use Case
 
@@ -113,7 +125,9 @@ No stress. No overload. You stay connected ✨
 
 ✅ Auto-summary after dialogue
 
-🕒 Connect to other agents on Agentverse
+✅ Connect to other agents on Agentverse
+
+🕒 Telegram/UI integration (in progress)
 
 
 ## 📜 License

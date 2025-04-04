@@ -120,7 +120,10 @@ async def handle_chat_reply(ctx: Context, sender: str, msg: ChatResponse):
     await ctx.send(last_sender, AssistantOutput(agent_reply=msg.reply, summary="..."))
 
     if len(conversation_history) >= 10:
-        summary_address = os.getenv("SUMMARY_AGENT_HOSTED_ADDRESS")
+        summary_address = find_agent("summary")
+        if not summary_address:
+            ctx.logger.error("❌ Summary agent not found via REST API.")
+            return
         full_text = " ".join(conversation_history)
         await ctx.send(
             summary_address,
