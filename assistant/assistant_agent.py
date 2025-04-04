@@ -39,58 +39,53 @@ assistant_agent = Agent(
 conversation_history = []
 last_sender = None
 
-def find_chat_agent():
-    try:
-        search_payload = {
-            "filters": {
-                "state": ["active"],
-                "category": [],
-                "agent_type": ["hosted"],
-                # "protocol_digest": ["chat-protocol"]
-            },
-            "sort": "relevancy",
-            "direction": "asc",
-            "search_text": "domain:chat AND name:chat_agent",
-            "offset": 0,
-            "limit": 3
-        }
+def find_agent(search_text="chat", limit=3):
+    payload = {
+        "filters": {},
+        "sort": "relevancy",
+        "direction": "asc",
+        "search_text": "chat",
+        "offset": 0,
+        "limit": 5
+    }
 
+    headers = {
+        "Authorization": f"Bearer {AGENTVERSE_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    try:
         response = requests.post(
-            "https://agentverse.ai/v1/search",
-            headers={
-                "Authorization": f"Bearer {AGENTVERSE_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json=search_payload
+            "https://agentverse.ai/v1/search/agents",
+            headers=headers,
+            json=payload
         )
 
-        print("📤 Payload sent to Agentverse:")
-        print(search_payload)
-
-        print("📥 Raw response from Agentverse:")
-        print(response.text)
+        print("📤 Search Payload:")
+        print(payload)
 
         if response.status_code != 200:
-            print(f"❌ Error: Received status code {response.status_code}")
+            print(f"❌ Request failed: {response.status_code}")
+            print("🔴 Response:", response.text)
             return None
 
         data = response.json()
-
-        if not isinstance(data, list) or not data:
-            print("⚠️ No agents returned from Agentverse.")
+        agents = data.get("agents", [])
+        if not agents:
+            print("⚠️ No agents found.")
             return None
         
+        for i, agent in enumerate(agents):
+            print(f"\n✅ Agent #{i+1}")
+            print(f"Name: {agent.get('name')}")
+            print(f"Address: {agent.get('address')}")
+            print(f"Status: {agent.get('status')}")
+            print(f"README tags: {agent.get('readme', '')[:200]}...")
 
-        for idx, agent in enumerate(data):
-            print(f"🔎 Agent #{idx+1}:")
-            print(f"  Name: {agent.get('name')}")
-            print(f"  Address: {agent.get('address')}")
-            print(f"  Tags: {agent.get('readme', '')[:300]}...")
-        
-        return data[0].get("address")
+        return agents[0].get("address")
 
     except Exception as e:
-        print(f"❌ Error during search: {e}")
+        print(f"❌ Exception during search: {e}")
         return None
 
 assistant_protocol = Protocol(name="assistant-protocol")
@@ -102,7 +97,7 @@ async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
     conversation_history.append(f"User: {msg.user_message}")
     last_sender = sender
 
-    chat_address = os.getenv("CHAT_AGENT_HOSTED_ADDRESS")
+    chat_address = find_agent()
 
     if not chat_address:
         ctx.logger.error("❌ Chat agent not found via REST API.")
