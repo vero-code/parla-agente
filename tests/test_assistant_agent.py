@@ -3,6 +3,9 @@ import os
 import asyncio
 from uagents import Agent, Context, Model
 from uagents.protocol import Protocol
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class AssistantInput(Model):
     user_message: str
@@ -52,6 +55,10 @@ async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
     else:
         ctx.logger.info("✅ Conversation complete.")
 
+ASSISTANT_AGENT_HOSTED_ADDRESS = os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS")
+if ASSISTANT_AGENT_HOSTED_ADDRESS is None:
+    raise ValueError("ASSISTANT_AGENT_HOSTED_ADDRESS environment variable is not set.")
+
 async def send_next_message(ctx):
     global current, waiting
 
@@ -61,7 +68,7 @@ async def send_next_message(ctx):
     msg = messages[current]
     ctx.logger.info(f"📤 User sends: {msg}")
     await ctx.send(
-        os.getenv("ASSISTANT_AGENT_ADDRESS"),
+        os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS"),
         AssistantInput(user_message=msg)
     )
     waiting = True
