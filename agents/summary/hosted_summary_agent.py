@@ -8,9 +8,11 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 class SummaryRequest(Model):
     text: str
+    reply_to: str
 
 class SummaryResponse(Model):
     summary: str
+    reply_to: str
 
 SUMMARY_AGENT_SEED = os.getenv("SUMMARY_AGENT_SEED", "summary-agent-secret-phrase")
 
@@ -46,7 +48,7 @@ async def handle_summary(ctx: Context, sender: str, msg: SummaryRequest):
     summary = query_gemini(msg.text)
 
     ctx.logger.info(f"📝 Summary: {summary}")
-    await ctx.send(sender, SummaryResponse(summary=summary))
+    await ctx.send(sender, SummaryResponse(summary=summary, reply_to=msg.reply_to))
 
 summary_agent.include(summary_protocol)
 

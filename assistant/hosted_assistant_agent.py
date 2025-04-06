@@ -22,9 +22,11 @@ class ChatResponse(Model):
 
 class SummaryRequest(Model):
     text: str
+    reply_to: str
 
 class SummaryResponse(Model):
     summary: str
+    reply_to: str
 
 ASSISTANT_AGENT_SEED = os.getenv("ASSISTANT_AGENT_SEED", "assistant-agent-secret-phrase")
 AGENTVERSE_API_KEY = os.getenv("AGENTVERSE_API_KEY")
@@ -34,9 +36,6 @@ assistant_agent = Agent(
     seed=ASSISTANT_AGENT_SEED,
     mailbox=True
 )
-
-conversation_history = []
-last_sender = None
 
 def find_agent(search_text="chat", limit=5):
     payload = {
@@ -93,8 +92,10 @@ assistant_protocol = Protocol(name="assistant-protocol")
 
 @assistant_protocol.on_message(model=AssistantInput)
 async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
+    dialogue = ctx.storage.get("dialogue") or []
     ctx.logger.info(f"🧾 Assistant received message: {msg.user_message}")
-    conversation_history.append(f"User: {msg.user_message}")
+    dialogue.append(f"User: {msg.user_message}")
+    ctx.storage.set("dialogue", dialogue)
 
     reply_to = msg.reply_to
     ctx.logger.info(f"🔹 Received reply_to from message: {reply_to}")
@@ -115,34 +116,40 @@ async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
 
 @assistant_agent.on_message(model=ChatResponse)
 async def handle_chat_reply(ctx: Context, sender: str, msg: ChatResponse):
+    dialogue = ctx.storage.get("dialogue") or []
     ctx.logger.info(f"💬 Chat Agent reply: {msg.reply}")
-    conversation_history.append(f"Agent: {msg.reply}")
+    dialogue.append(f"Agent: {msg.reply}")
+    ctx.storage.set("dialogue", dialogue)
 
     reply_to = msg.reply_to
     ctx.logger.info(f"🔸 In handle_chat_reply - Using reply_to: {reply_to}")
 
     await ctx.send(reply_to, AssistantOutput(agent_reply=msg.reply, summary="..."))
 
-    if len(conversation_history) >= 10:
+    ctx.logger.info(f"Conversation dialogue length: {len(dialogue)}")
+    if len(dialogue) >= 10:
         summary_address = find_agent("summary")
         if not summary_address:
             ctx.logger.error("❌ Summary agent not found via REST API.")
             return
-        full_text = " ".join(conversation_history)
+        full_text = " ".join(dialogue)
+        ctx.logger.info(f"🔍 Summary agent found at: {summary_address}")
         await ctx.send(
             summary_address,
-            SummaryRequest(text=full_text)
+            SummaryRequest(text=full_text, reply_to=reply_to)
         )
 
 @assistant_agent.on_message(model=SummaryResponse)
 async def handle_summary(ctx: Context, sender: str, msg: SummaryResponse):
-    global last_sender
     ctx.logger.info(f"📝 Summary Agent: {msg.summary}")
+    reply_to = msg.reply_to
+    dialogue = ctx.storage.get("dialogue") or []
     response = AssistantOutput(
-        agent_reply=conversation_history[-1].replace("Agent: ", ""),
+        agent_reply=dialogue[-1].replace("Agent: ", ""),
         summary=msg.summary
     )
-    await ctx.send(last_sender, response)
+    await ctx.send(reply_to, response)
+    ctx.storage.set("dialogue", [])
 
 assistant_agent.include(assistant_protocol)
 
