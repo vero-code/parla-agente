@@ -8,9 +8,11 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 class ChatRequest(Model):
     message: str
+    reply_to: str
 
 class ChatResponse(Model):
     reply: str
+    reply_to: str
 
 chat_agent = Agent(
     name="chat_agent",
@@ -48,7 +50,7 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatRequest):
         reply = "⚠️ Sorry, something went wrong while processing your request."
         ctx.logger.error(f"Gemini API error: {e}")
 
-    await ctx.send(sender, ChatResponse(reply=reply))
+    await ctx.send(sender, ChatResponse(reply=reply, reply_to=msg.reply_to))
 
 chat_agent.include(chat_protocol)
 

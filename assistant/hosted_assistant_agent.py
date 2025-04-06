@@ -6,6 +6,7 @@ from uagents.protocol import Protocol
 
 class AssistantInput(Model):
     user_message: str
+    reply_to: str
 
 class AssistantOutput(Model):
     agent_reply: str
@@ -13,9 +14,11 @@ class AssistantOutput(Model):
 
 class ChatRequest(Model):
     message: str
+    reply_to: str
 
 class ChatResponse(Model):
     reply: str
+    reply_to: str
 
 class SummaryRequest(Model):
     text: str
@@ -90,10 +93,11 @@ assistant_protocol = Protocol(name="assistant-protocol")
 
 @assistant_protocol.on_message(model=AssistantInput)
 async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
-    global last_sender
     ctx.logger.info(f"🧾 Assistant received message: {msg.user_message}")
     conversation_history.append(f"User: {msg.user_message}")
-    last_sender = sender
+
+    reply_to = msg.reply_to
+    ctx.logger.info(f"🔹 Received reply_to from message: {reply_to}")
 
     chat_address = find_agent()
 
@@ -106,14 +110,18 @@ async def handle_assistant(ctx: Context, sender: str, msg: AssistantInput):
         return
 
     ctx.logger.info(f"🔍 Found ChatAgent at: {chat_address}")
-    await ctx.send(chat_address, ChatRequest(message=msg.user_message))
+
+    await ctx.send(chat_address, ChatRequest(message=msg.user_message, reply_to=reply_to))
 
 @assistant_agent.on_message(model=ChatResponse)
 async def handle_chat_reply(ctx: Context, sender: str, msg: ChatResponse):
     ctx.logger.info(f"💬 Chat Agent reply: {msg.reply}")
     conversation_history.append(f"Agent: {msg.reply}")
 
-    await ctx.send(last_sender, AssistantOutput(agent_reply=msg.reply, summary="..."))
+    reply_to = msg.reply_to
+    ctx.logger.info(f"🔸 In handle_chat_reply - Using reply_to: {reply_to}")
+
+    await ctx.send(reply_to, AssistantOutput(agent_reply=msg.reply, summary="..."))
 
     if len(conversation_history) >= 10:
         summary_address = find_agent("summary")

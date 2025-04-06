@@ -9,6 +9,7 @@ load_dotenv()
 
 class AssistantInput(Model):
     user_message: str
+    reply_to: str
 
 class AssistantOutput(Model):
     agent_reply: str
@@ -69,7 +70,7 @@ async def send_next_message(ctx):
     ctx.logger.info(f"📤 User sends: {msg}")
     await ctx.send(
         os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS"),
-        AssistantInput(user_message=msg)
+        AssistantInput(user_message=msg, reply_to=test_assistant_agent.address)
     )
     waiting = True
     current += 1
