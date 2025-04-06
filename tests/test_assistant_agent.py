@@ -35,9 +35,15 @@ messages = [
 current = 0
 waiting = False
 
+conversation_done = False
+
 @test_protocol.on_message(model=AssistantOutput)
 async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
-    global waiting, current
+    global waiting, current, conversation_done
+
+    if conversation_done:
+        ctx.logger.info("⚠️ Late message arrived after conversation complete. Ignoring.")
+        return
 
     ctx.logger.info(f"📨 From Chat Agent: {msg.agent_reply}")
 
@@ -54,6 +60,7 @@ async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
         await asyncio.sleep(2.5)
         await send_next_message(ctx)
     else:
+        conversation_done = True
         ctx.logger.info("✅ Conversation complete.")
 
 ASSISTANT_AGENT_HOSTED_ADDRESS = os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS")

@@ -24,7 +24,7 @@ Parla Agente is now a **multi-agent system** designed to simulate natural conver
 
 - Uses **Gemini** to identify the real meaning behind casual chats
 
-### 3. `Assistant Agent` (local)
+### 3. `Assistant Agent` (hosted on Agentverse)
 
 - Coordinates the conversation
 
@@ -99,7 +99,6 @@ ASSISTANT_AGENT_ADDRESS=...
 ### 3. Start the agents:
 
 ```
-python assistant/assistant_agent.py
 python tests/test_assistant_agent.py
 ```
 
