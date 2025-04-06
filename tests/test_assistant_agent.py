@@ -15,6 +15,9 @@ class AssistantOutput(Model):
     agent_reply: str
     summary: str
 
+class SummaryTrigger(Model):
+    pass
+
 test_assistant_agent = Agent(
     name="test_assistant_agent",
     seed="test-assistant-seed",
@@ -37,12 +40,19 @@ waiting = False
 
 conversation_done = False
 
+ASSISTANT_AGENT_HOSTED_ADDRESS = os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS")
+if ASSISTANT_AGENT_HOSTED_ADDRESS is None:
+    raise ValueError("ASSISTANT_AGENT_HOSTED_ADDRESS environment variable is not set.")
+
 @test_protocol.on_message(model=AssistantOutput)
 async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
     global waiting, current, conversation_done
 
     if conversation_done:
-        ctx.logger.info("⚠️ Late message arrived after conversation complete. Ignoring.")
+        if msg.summary and msg.summary != "...":
+            ctx.logger.info(f"📝 Final summary arrived: {msg.summary}")
+        else:
+            ctx.logger.info("⚠️ Late message arrived after conversation complete. Ignoring.")
         return
 
     ctx.logger.info(f"📨 From Chat Agent: {msg.agent_reply}")
@@ -63,9 +73,11 @@ async def handle_output(ctx: Context, sender: str, msg: AssistantOutput):
         conversation_done = True
         ctx.logger.info("✅ Conversation complete.")
 
-ASSISTANT_AGENT_HOSTED_ADDRESS = os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS")
-if ASSISTANT_AGENT_HOSTED_ADDRESS is None:
-    raise ValueError("ASSISTANT_AGENT_HOSTED_ADDRESS environment variable is not set.")
+        ctx.logger.info("📝 Requesting final summary from Assistant...")
+        await ctx.send(
+            ASSISTANT_AGENT_HOSTED_ADDRESS,
+            SummaryTrigger()
+        )
 
 async def send_next_message(ctx):
     global current, waiting
@@ -76,7 +88,7 @@ async def send_next_message(ctx):
     msg = messages[current]
     ctx.logger.info(f"📤 User sends: {msg}")
     await ctx.send(
-        os.getenv("ASSISTANT_AGENT_HOSTED_ADDRESS"),
+        ASSISTANT_AGENT_HOSTED_ADDRESS,
         AssistantInput(user_message=msg, reply_to=test_assistant_agent.address)
     )
     waiting = True
