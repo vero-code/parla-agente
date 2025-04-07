@@ -21,3 +21,5 @@ __pycache__/
 
 # Documentation training
 docs/
+
+userbot_session.*
