@@ -23,7 +23,7 @@ summary_agent = Agent(
 )
 
 def query_gemini(prompt: str) -> str:
-    prompt = f"Summarize the gist of the conversation in a very brief and concise manner, in the same language as the conversation itself, like 'Talked about the weather, decided to meet on Friday': '{prompt}'"
+    prompt = f"Summarize the gist of the conversation in a very brief and concise manner. Use the same language as the conversation itself. Do not assume or mention the gender of any participant. Avoid including labels like 'User:' or 'Agent:'. Write the summary as a natural, friendly recap — like: 'Talked about the weather, decided to meet on Friday.' Here is the conversation:: '{prompt}'"
 
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     headers = {"Content-Type": "application/json"}

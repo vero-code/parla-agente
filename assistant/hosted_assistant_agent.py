@@ -146,15 +146,9 @@ async def handle_summary_trigger(ctx: Context, sender: str, msg: SummaryTrigger)
 async def handle_summary(ctx: Context, sender: str, msg: SummaryResponse):
     ctx.logger.info(f"📝 Summary Agent: {msg.summary}")
     reply_to = msg.reply_to
-    dialogue = ctx.storage.get("dialogue") or []
-
-    if dialogue:
-        last_agent_reply = dialogue[-1].replace("Agent: ", "")
-    else:
-        last_agent_reply = ""
-
+    
     response = AssistantOutput(
-        agent_reply=last_agent_reply,
+        agent_reply="",
         summary=msg.summary
     )
     await ctx.send(reply_to, response)

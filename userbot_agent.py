@@ -62,13 +62,14 @@ async def handle_local_user_input(ctx: Context, sender: str, msg: UserbotInput):
 async def handle_assistant_reply(ctx: Context, sender: str, msg: AssistantOutput):
     global last_sender
     if last_sender:
-        await telegram_client.send_message(last_sender, msg.agent_reply)
-        ctx.logger.info(f"📤 Sent to Telegram: {msg.agent_reply}")
+        if msg.agent_reply.strip():
+            await telegram_client.send_message(last_sender, msg.agent_reply)
+            ctx.logger.info(f"📤 Sent to Telegram: {msg.agent_reply}")
 
         if msg.summary and msg.summary != "...":
             me = await telegram_client.get_me()
-            sender = await telegram_client.get_entity(last_sender)
-            summary_message = f"📌 *Summary of your chat with {getattr(sender, 'first_name', 'unknown')}*: \n{msg.summary}"
+            tg_user = await telegram_client.get_entity(last_sender)
+            summary_message = f"📌 *Summary of your chat with {getattr(tg_user, 'first_name', 'unknown')}*: \n{msg.summary}"
             await telegram_client.send_message(me.id, summary_message)
             ctx.logger.info(f"📌 Sent summary to self: {msg.summary}")
 
@@ -78,9 +79,7 @@ async def on_new_message(event):
 
     text = event.message.message
     sender = await event.get_input_sender()
-    last_sender = sender
-    print(f"[TELEGRAM] Incoming msg from {sender}: {text}")
-
+    
     me = await telegram_client.get_me()
     sender_id = event.sender_id
 
@@ -91,6 +90,9 @@ async def on_new_message(event):
     
     if not event.is_private or sender_id == me.id:
         return
+    
+    last_sender = sender
+    print(f"[TELEGRAM] Incoming msg from {sender}: {text}")
 
     if not agent_ready.is_set():
         print("⏳ Agent not ready. Queuing message.")
