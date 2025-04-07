@@ -72,16 +72,25 @@ async def handle_assistant_reply(ctx: Context, sender: str, msg: AssistantOutput
             await telegram_client.send_message(me.id, summary_message)
             ctx.logger.info(f"📌 Sent summary to self: {msg.summary}")
 
-@telegram_client.on(events.NewMessage(incoming=True))
+@telegram_client.on(events.NewMessage)
 async def on_new_message(event):
     global agent_context, last_sender
 
-    if not event.is_private:
-        return
-
     text = event.message.message
-    last_sender = await event.get_input_sender()
-    print(f"[TELEGRAM] Incoming msg from {last_sender}: {text}")
+    sender = await event.get_input_sender()
+    last_sender = sender
+    print(f"[TELEGRAM] Incoming msg from {sender}: {text}")
+
+    me = await telegram_client.get_me()
+    sender_id = event.sender_id
+
+    if text.strip().lower() == "/summary" and sender_id == me.id:
+        print("📝 Summary manually triggered by the user.")
+        await handle_local_user_input(agent_context, userbot_agent.address, UserbotInput(text="summary"))
+        return
+    
+    if not event.is_private or sender_id == me.id:
+        return
 
     if not agent_ready.is_set():
         print("⏳ Agent not ready. Queuing message.")
