@@ -4,7 +4,7 @@ import asyncio
 from telethon import TelegramClient, events
 from dotenv import load_dotenv
 from uagents import Agent, Context
-from models import UserbotInput, AssistantInput, AssistantOutput
+from models import UserbotInput, AssistantInput, AssistantOutput, SummaryTrigger
 
 load_dotenv()
 
@@ -44,9 +44,10 @@ async def handle_local_user_input(ctx: Context, sender: str, msg: UserbotInput):
             await handle_local_user_input(ctx, sender, UserbotInput(text=text))
         pending_messages.clear()
 
-    if msg.text == "__bootstrap__":
-        ctx.logger.info("⏳ Bootstrap message received. Skipping forwarding.")
-        return
+    if msg.text.strip().lower() == "summary":
+            ctx.logger.info("📝 User triggered summary manually.")
+            await ctx.send(ASSISTANT_AGENT_HOSTED_ADDRESS, SummaryTrigger())
+            return
 
     ctx.logger.info(f"[userbot] Forwarding to Assistant: {msg.text}")
     await ctx.send(
@@ -62,9 +63,14 @@ async def handle_assistant_reply(ctx: Context, sender: str, msg: AssistantOutput
     global last_sender
     if last_sender:
         await telegram_client.send_message(last_sender, msg.agent_reply)
+        ctx.logger.info(f"📤 Sent to Telegram: {msg.agent_reply}")
 
         if msg.summary and msg.summary != "...":
-            await telegram_client.send_message(last_sender, f"\n📌 *Summary:*\n{msg.summary}")
+            me = await telegram_client.get_me()
+            sender = await telegram_client.get_entity(last_sender)
+            summary_message = f"📌 *Summary of your chat with {getattr(sender, 'first_name', 'unknown')}*: \n{msg.summary}"
+            await telegram_client.send_message(me.id, summary_message)
+            ctx.logger.info(f"📌 Sent summary to self: {msg.summary}")
 
 @telegram_client.on(events.NewMessage(incoming=True))
 async def on_new_message(event):

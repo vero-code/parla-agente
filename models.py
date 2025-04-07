@@ -10,3 +10,6 @@ class AssistantInput(Model):
 class AssistantOutput(Model):
     agent_reply: str
     summary: str
+
+class SummaryTrigger(Model):
+    pass
