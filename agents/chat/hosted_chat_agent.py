@@ -21,7 +21,7 @@ chat_agent = Agent(
 )
 
 def query_gemini(prompt: str) -> str:
-    prompt = f"Reply as a friendly conversationalist, keeping it brief and positive. The message is: '{prompt}'. Keep it short and lighthearted."
+    prompt = f"Reply as a friendly conversationalist, keeping it brief and positive. The message is: '{prompt}'. Avoid gendered pronouns and verb forms. Keep it short and lighthearted, and respond only in the language of the original message."
 
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     headers = {"Content-Type": "application/json"}
@@ -30,12 +30,10 @@ def query_gemini(prompt: str) -> str:
         "contents": [{"parts": [{"text": prompt}]}]
     }
 
-    try:
-        response = requests.post(url, headers=headers, params=params, json=data)
-        response.raise_for_status()
-        return response.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        return f"⚠️ Gemini error: {str(e)}"
+    response = requests.post(url, headers=headers, params=params, json=data)
+    response.raise_for_status()
+
+    return response.json().get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
 
 chat_protocol = Protocol(name="chat-protocol")
 
@@ -47,7 +45,7 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatRequest):
         reply = query_gemini(msg.message)
         ctx.logger.info(f"🤖 Gemini reply: {reply}")
     except Exception as e:
-        reply = "⚠️ Sorry, something went wrong while processing your request."
+        reply = "😅 Oops, I had a moment... Could you say that again?"
         ctx.logger.error(f"Gemini API error: {e}")
 
     await ctx.send(sender, ChatResponse(reply=reply, reply_to=msg.reply_to))
