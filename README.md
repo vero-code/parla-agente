@@ -1,14 +1,15 @@
 
 # 🤖 Parla Agente
 
-An AI agent that **chats on your behalf** and then sends you a short summary of the conversation. Created for participation in the [Fetch.ai Hackathon](https://devpost.com/software/parla-agente-speaks-for-you-and-does-it-beautifully).
+An AI agent that **chats on your behalf** and then sends you a short summary of the conversation. Parla Agente is a **multi-agent system** designed to simulate natural conversations and deliver concise summaries — so you don’t have to reply to every message.
 
+Created for participation in the [Fetch.ai Hackathon](https://devpost.com/software/parla-agente-speaks-for-you-and-does-it-beautifully) 
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
 
 
 ## 🧠 What the Agent Does
 
-Parla Agente is now a **multi-agent system** designed to simulate natural conversations and deliver concise summaries — so you don’t have to reply to every message.
+![Architecture diagram](assets/diagram.png)
 
 The three core agents — **Assistant Agent**, **Chat Agent**, and **Summary Agent** — are hosted on Agentverse and work together to handle each conversation.
 
@@ -16,29 +17,22 @@ A fourth agent, the **Userbot Agent**, runs locally and acts as a bridge to your
 
 ### 1. `Chat Agent`
 _(hosted on Agentverse)_
-- Communicates in friendly style
-
-- Powered by **Gemini 2.0 Flash**
-
+- Communicates in friendly style using **AI**
 - Generates natural, human-like replies
 
 ### 2. `Summary Agent`
 _(hosted on Agentverse)_
 
 - Takes full conversation history and returns a **brief, friendly summary**
-
-- Uses **Gemini** to identify the real meaning behind casual chats
+- Uses **AI** to identify the real meaning behind casual chats
 
 ### 3. `Assistant Agent`
 _(hosted on Agentverse)_
 
 - Coordinates the conversation
-
 - Sends your message to the Chat Agent
-
 - Collects replies and sends full history to Summary Agent when the dialogue ends
-
-- Supports dynamic agent search and discovery feature on Agentverse.ai
+- Supports dynamic agent **search and discovery feature** on Agentverse.ai
 
 ### 4. `Userbot Agent`
 _(hosted on Agentverse, need connect to Mailbox)_
@@ -57,7 +51,7 @@ You can inspect the main agents running on [Agentverse.ai](https://agentverse.ai
 
 > Agents are live and discover each other dynamically using `find_agent()`. You can test this flow by launching the `Userbot Agent` locally.
 
-## 📲 Telegram Integration (New Feature!)
+## 📲 Telegram Integration
 
 Chat with friends and family **without missing a beat**:
 - Parla Agente chats **on your behalf**
@@ -70,15 +64,26 @@ How it works:
 - The `Chat Agent` responds in your tone
 - Replies are sent back via Telegram, just like you wrote them
 
+## 📝 Get a Quick Summary
+
+Want to know what your agent discussed without reading the whole chat?
+
+-   Just type `/summary` in your **Saved Messages** on Telegram.
+-   The Userbot Agent will trigger the **Summary Agent**.
+-   You’ll get a **short summary** of the conversation in your **Saved Messages** — private and convenient.
+
+This helps you stay in the loop without opening every chat. ✨
+
 ## 🔍 Agent Discovery
 
-Instead of hardcoding agent addresses, **Parla Agente** now uses a custom `find_agent()` function to find agents dynamically.
+Instead of hardcoding agent addresses, **Parla Agente** uses a custom `find_agent()` function to find agents dynamically.
 
 It queries [Agentverse.ai](https://agentverse.ai/) for agents with specific tags like: `["innovationlab"]`
 
-That means:  
-✔️ You don’t need to maintain static addresses
-✔️ Parla Agente can connect to other participants' public agents
+That means:
+
+✔️ You don’t need to maintain static addresses  
+✔️ Parla Agente can connect to other participants' public agents  
 ✔️ It’s easier to scale and add new agents in the future
 
 
@@ -94,21 +99,15 @@ When the chat ends, Summary Agent returns:
 
 ## ⚙️ Tech Stack
 
-- Python 3.13.2
+- Python v3.13.2, pip v25.0.1
 
-- pip 25.0.1
-
-- [Fetch.ai uAgents Framework](https://docs.fetch.ai/)
+- [Fetch.ai uAgents Framework](https://docs.fetch.ai/) v0.21.1
 
 - [Agentverse](https://agentverse.ai/) for agent discovery and hosting
 
-- [Gemini 2.0 Flash](https://www.google.com/search?q=gemini+2.0+flash) (Google's AI model)
+- [Google Gemini API](https://developers.google.com/gemini/docs/getting-started), [Gemini 2.0 Flash](https://www.google.com/search?q=gemini+2.0+flash) (Google's AI model)
 
-- [Google Gemini API](https://developers.google.com/gemini/docs/getting-started)
-
--  `.env` for secure API keys
-
-- VS Code
+-  `.env` for secure API keys, VS Code editor
 
 - Telethon (Telegram API wrapper)
 
@@ -191,6 +190,12 @@ No stress. No overload. You stay connected ✨
 
 ✅ Telegram integration
 
+## 🛠️ Troubleshooting
+
+If you don't receive messages back:
+- Make sure your Userbot Agent is connected to the Mailbox.
+- Confirm your Telegram account is properly logged in (check session file).
+- Check your `.env` file for correct API keys.
 
 ## 📜 License
 

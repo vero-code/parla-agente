@@ -21,8 +21,8 @@ This AI agent acts as a **Personalized Assistant** that receives messages from u
 - Searches for external agents via `Agentverse API`
 - Routes user input to the most relevant Chat Agent (based on tags)
 - Accumulates dialogue history
-- Sends full chat log to a Summary Agent after 10 messages
-- Returns final summary and last reply
+- Sends full chat log to a Summary Agent
+- Returns final summary
 
 ---
 
